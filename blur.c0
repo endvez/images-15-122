@@ -1,0 +1,83 @@
+
+// checks if mask contains nonnegative elements
+bool all_nonnegative (int [] array, int size) 
+//@requires 0 <= size && size <= \length(array);
+{
+    for (int i = 0; i < size; i++) {
+        if (array[i] < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+pixel_t[] blur(pixel_t[] pixels, int width, int height, int[] mask, int maskwidth)  
+//@requires \length(pixels) == width*height;
+//@requires 0 <= maskwidth && maskwidth % 2 == 1;
+//@requires \length(mask) == maskwidth*maskwidth;
+//@requires mask[\length(mask)/2] > 0;
+//@requires is_valid_imagesize(width, height);
+//@requires is_valid_imagesize(maskwidth, maskwidth);
+//@requires all_nonnegative(mask, maskwidth * maskwidth);
+//@ensures \length(\result) == \length(pixels);
+{
+    pixel_t[] blurred_img = alloc_array(pixel_t, width*height);
+    //loops through input array
+    for (int row = 0; row < height; row++) 
+    //@loop_invariant 0 <= row && row <= height;
+    {
+        for (int col = 0; col < width; col++)
+        //@loop_invariant 0 <= col && col <= width;
+
+        {
+            int red_value = 0;
+            int green_value = 0;
+            int blue_value = 0;
+            int index = get_index(row, col, width, height);
+            int mask_index = 0;
+            int sum = 0;
+            for (int i = row-maskwidth/2; i <= row+maskwidth/2; i++) 
+            //loops through possible mask configurations. 
+            /*@loop_invariant row - maskwidth/2 <= i 
+                              && i <= row + maskwidth / 2 + 1; @*/
+            {
+                for (int j = col-maskwidth/2; j <= col+maskwidth/2; j++)
+                /*@loop_invariant col - maskwidth / 2 <= j 
+                                  && j <= col + maskwidth / 2 +1; @*/
+                {
+                    //If pixel is valid, mask operations are performed.
+                    if (is_valid_pixel(i,j,width,height)) { 
+                        red_value = red_value 
+                            + get_red(pixels[get_index(i,j,width,height)]) 
+                                                       * mask[mask_index];
+
+                        green_value = green_value 
+                            + get_green(pixels[get_index(i,j,width,height)]) 
+                                                         * mask[mask_index];
+
+                        blue_value = blue_value 
+                            + get_blue(pixels[get_index(i,j,width,height)]) 
+                                                        * mask[mask_index];
+
+                        sum = sum + mask[mask_index];
+                    }
+                    mask_index++;
+                }
+            }
+            //calculate new blurred pixel
+            if (sum > 0) { 
+                blurred_img[index] = make_pixel(get_alpha(pixels[index]),
+                                                red_value/sum, 
+                                                green_value/sum, 
+                                                blue_value/sum);
+            }
+            //no modification
+            else { 
+                blurred_img[index] = pixels[index];
+            }
+        }
+    }
+    return blurred_img;
+}

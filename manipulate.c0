@@ -1,0 +1,33 @@
+#use <util>
+#use <conio>
+
+int result_width (int width, int height) {
+    return width;
+}
+
+int result_height (int width, int height) {
+    return height;
+}
+
+//swaps red and alpha intensity + blue with green intensity
+
+pixel_t[] manipulate(pixel_t[] pixels, int width, int height)  
+//@requires is_valid_imagesize(width, height);
+{
+    pixel_t [] new_pixels = alloc_array(pixel_t, width*height);
+    for (int row = 0; row < height; row++) 
+    //@loop_invariant 0 <= row && row <= height;
+    {
+        for (int col = 0; col < width; col++) 
+        //@loop_invariant 0 <= col && col <= width;
+        {
+            int index = get_index(row,col,width,height);
+            new_pixels[index] = make_pixel(get_red(pixels[index]),
+                                           get_alpha(pixels[index]),
+                                           get_blue(pixels[index]),
+                                           get_green(pixels[index]));
+
+        }
+    }
+    return new_pixels;
+}

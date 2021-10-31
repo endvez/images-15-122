@@ -1,0 +1,52 @@
+#use <util>
+#use <conio>
+
+pixel_t[] reflect(pixel_t[] pixels, int width, int height) 
+//@requires \length(pixels) == width * height;
+//@requires is_valid_imagesize(width, height);
+//@ensures \length(\result) == 4 * width * height;
+//@ensures \result != pixels;
+
+{
+    int reflected_width = 2*width;
+    int reflected_height = 2*height;
+    pixel_t [] reflectedimage = alloc_array(pixel_t, 
+        reflected_width*reflected_height);
+    
+    for (int row = 0; row < height; row++) 
+    //@loop_invariant 0 <= row && row <= height;
+    {
+        for (int col = 0; col < width; col++) 
+        //@loop_invariant 0 <= col && col <= width;
+        {
+            //duplicates image
+            reflectedimage[get_index(row, col, 
+           reflected_width, reflected_height)] 
+            = pixels[get_index(row,width-1-col,
+                               width,height)]; 
+
+            //reflects image across x-axis
+            reflectedimage[get_index(reflected_height-1-row, col, 
+                              reflected_width, reflected_height)] 
+            = pixels[get_index(row,width-1-col,
+                               width,height)]; 
+
+            //reflects image across y-axis
+            reflectedimage[get_index(row, width+col, 
+                 reflected_width, reflected_height)] 
+            = pixels[get_index(row,col,
+                               width,height)]; 
+
+            //reflects image across both axes
+            reflectedimage[get_index(reflected_height-1-row, width+col, 
+                                    reflected_width, reflected_height)]
+            = pixels[get_index(row,col,
+                               width,height)]; 
+            
+        }
+
+    }
+
+    return reflectedimage;
+}
+  
